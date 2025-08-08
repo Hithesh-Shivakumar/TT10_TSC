@@ -6,7 +6,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge
 
 @cocotb.test()
-async def test_trivium_stream_processor(dut):
+async def tt_um_trivium_stream_processor(dut):
     """Test Trivium-lite stream processing with reversible transformation"""
     
     dut._log.info("Starting Trivium-lite stream processor test")
