@@ -62,16 +62,19 @@ module tt_um_trivium_stream_processor (
                 IDLE: begin
                     step           <= 3'd0;
                     temp_keystream <= 8'b0;
-                    
+                    uo_out         <= 8'b0;
+
                     if (uio_in != CMD_NORMAL && uio_in != CMD_RESET) begin
-                        s1    <= {48'd0, uio_in,                   uio_in                  };
-                        s2    <= {48'd0, uio_in, ~uio_in[3:0], uio_in[7:4]             };
-                        s3    <= {48'd0, uio_in, (uio_in ^ 8'hA5)                    };
+                        s1    <= {48'd0, uio_in, uio_in};
+                        s2    <= {48'd0, uio_in, ~uio_in[3:0], uio_in[7:4]};
+                        s3    <= {48'd0, uio_in, (uio_in ^ 8'hA5)};
                         state <= RUN;
                     end
                 end
-                
+
                 RUN: begin
+                    uo_out <= uo_out;  // Hold last value by default
+
                     if (uio_in == CMD_RESET) begin
                         state <= RESET;
                     end else begin
@@ -79,21 +82,23 @@ module tt_um_trivium_stream_processor (
                             temp_keystream <= 8'b0;
                         end
                         
+                        // Update LFSRs
                         s1 <= {s1[62:0], s2[0] ^ s3[1] ^ s1[5] ^ s2[7] ^ s3[13] ^ s1[31] ^ s2[47] ^ s3[60]};
                         s2 <= {s2[62:0], s3[3] ^ s1[1] ^ s2[2] ^ s3[19] ^ s1[23]};
                         s3 <= {s3[62:0], s1[5] ^ s2[2] ^ s3[4] ^ s1[17] ^ s2[29] ^ s3[63] ^ s1[10] ^ s2[40]};
                         
+                        // Accumulate keystream
                         temp_keystream <= {temp_keystream[6:0], s1[0] ^ s2[0] ^ s3[0]};
                         
                         step <= step + 1;
-                        
+
                         if (step == 3'd7) begin
                             uo_out <= ui_in ^ temp_keystream;
                             step   <= 3'd0;
                         end
                     end
                 end
-                
+
                 RESET: begin
                     s1             <= INIT_S1;
                     s2             <= INIT_S2;
@@ -103,7 +108,7 @@ module tt_um_trivium_stream_processor (
                     step           <= 3'd0;
                     state          <= IDLE;
                 end
-                
+
                 default: begin
                     state <= IDLE;
                 end
