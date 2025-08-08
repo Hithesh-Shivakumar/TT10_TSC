@@ -1,7 +1,7 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-module test_trivium_stream_processor (
+module tt_um_trivium_stream_processor (
     // Dedicated inputs/outputs
     input  wire [7:0] ui_in,
     output reg  [7:0] uo_out,
