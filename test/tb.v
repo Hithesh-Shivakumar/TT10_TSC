@@ -25,7 +25,7 @@ module tb ();
   always #10 clk = ~clk;
 
   // DUT instantiation
-  tt_um_trivium_cipher user_project (
+  test_trivium_stream_processor user_project (
       .ui_in  (ui_in),
       .uo_out (uo_out),
       .uio_in (uio_in),
